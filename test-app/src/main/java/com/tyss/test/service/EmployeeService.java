@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.BeanUtils;
@@ -22,8 +21,7 @@ public class EmployeeService {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
-	
+
 	public String saveEmployee(EmployeeDTO employeeDTO) {
 		Session currentSession = sessionFactory.getCurrentSession();
 		String query = "from Employee where employeeId =:employeeId";
@@ -37,9 +35,35 @@ public class EmployeeService {
 		Employee employee = new Employee();
 		BeanUtils.copyProperties(employeeDTO, employee);
 		System.err.println(employee);
-	    Serializable save = currentSession.save(employee);
-	    System.err.println(save);
+		Serializable save = currentSession.save(employee);
+		System.err.println(save);
 		return "Saved Successfully";
+	}
+
+	public String updateEmployee(EmployeeDTO employeeDTO) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		Employee employee = currentSession.find(Employee.class, employeeDTO.getEmployeeInfoId());
+		if (employee == null) {
+			return "Employee Not Found";
+		}
+		employee.setName(employeeDTO.getName());
+		currentSession.save(employee);
+		return "Updated Successfully";
+	}
+
+	public String deleteEmployee(Long employeeInfoId) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		Employee employee = currentSession.find(Employee.class, employeeInfoId);
+		if (employee == null) {
+			return "Employee Not Found";
+		}
+		currentSession.delete(employee);
+		return "Deleted Successfully";
+	}
+
+	public Employee getById(Long employeeInfoId) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		return currentSession.find(Employee.class, employeeInfoId);
 	}
 
 	public List<EmployeeDTO> getAllEmployees() {
